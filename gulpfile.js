@@ -9,14 +9,15 @@ var browserSync = require('browser-sync').create();
 var defaultAssets = {
   components:{
     sass:[
-      './app/components/**/styles/*.scss'
+      './app/styles/*.scss',
+      './app/**/styles/*.scss'
     ],
     views:[
-      './app/components/**/views/*.html'
+      './app/**/views/*.html'
     ],
     ts:[
-      './app/components/*.ts',
-      './app/components/**/*.ts'
+      './app/*.ts',
+      './app/**/*.ts'
     ]
   }
 };
@@ -28,6 +29,7 @@ gulp.task('browser-sync', function() {
             baseDir: "./dist"
         }
     });
+    gulp.watch('./dist/index.html').on('change', browserSync.reload);
     gulp.watch(defaultAssets.components.sass, ['sass']);
     gulp.watch(defaultAssets.components.views).on('change', browserSync.reload);
     gulp.watch(defaultAssets.components.ts, ['tsc']).on('change', browserSync.reload);
@@ -44,7 +46,7 @@ gulp.task('sass', function () {
     .pipe(rename(function (path) {
       path.dirname = path.dirname.replace('styles', '');
     }))
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./dist/assets/styles'));
 });
 
 gulp.task('html', function() {
@@ -59,7 +61,7 @@ gulp.task('html', function() {
     //     [ /\{\{*\s+\w+\}\}/, /\{\{\/if\}\}/ ]
     //   ]
     // }))
-    .pipe(gulp.dest('./dist'))
+    .pipe(gulp.dest('./dist/views'))
 });
 
 // Typescript task
@@ -68,7 +70,11 @@ gulp.task('tsc', function () {
   var tsResult = tsProject.src() // instead of gulp.src(...)
   .pipe(ts(tsProject));
 
-  return tsResult.js.pipe(gulp.dest('./dist'));
+  return tsResult.js
+  .pipe(rename(function (path) {
+    path.dirname = path.dirname.replace('/components', '');
+  }))
+  .pipe(gulp.dest('./dist/assets/js'));
 
 	// gulp.src(defaultAssets.client.ts)
 	// .pipe(plugins.typescript({
