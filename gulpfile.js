@@ -3,8 +3,8 @@ var gulp = require('gulp');
 var sass = require('gulp-sass');
 var ts = require('gulp-typescript');
 var runSequence = require('run-sequence');
-var livereload = require('gulp-livereload');
 var rename = require('gulp-rename');
+var browserSync = require('browser-sync').create();
 
 var defaultAssets = {
   components:{
@@ -21,6 +21,18 @@ var defaultAssets = {
   }
 };
 
+// Static server
+gulp.task('browser-sync', function() {
+    browserSync.init({
+        server: {
+            baseDir: "./dist"
+        }
+    });
+    gulp.watch(defaultAssets.components.sass, ['sass']);
+    gulp.watch(defaultAssets.components.views).on('change', browserSync.reload);
+    gulp.watch(defaultAssets.components.ts, ['tsc']).on('change', browserSync.reload);
+});
+
 // Set NODE_ENV to 'development'
 gulp.task('env:dev', function () {
 	process.env.NODE_ENV = 'development';
@@ -32,7 +44,7 @@ gulp.task('sass', function () {
     .pipe(rename(function (path) {
       path.dirname = path.dirname.replace('styles', '');
     }))
-    .pipe(gulp.dest('./app/assets/stylesheets'));
+    .pipe(gulp.dest('./dist'));
 });
 
 gulp.task('html', function() {
@@ -47,7 +59,7 @@ gulp.task('html', function() {
     //     [ /\{\{*\s+\w+\}\}/, /\{\{\/if\}\}/ ]
     //   ]
     // }))
-    .pipe(gulp.dest('./app/views/angular'))
+    .pipe(gulp.dest('./dist'))
 });
 
 // Typescript task
@@ -56,7 +68,7 @@ gulp.task('tsc', function () {
   var tsResult = tsProject.src() // instead of gulp.src(...)
   .pipe(ts(tsProject));
 
-  return tsResult.js.pipe(gulp.dest('./app/assets/javascripts'));
+  return tsResult.js.pipe(gulp.dest('./dist'));
 
 	// gulp.src(defaultAssets.client.ts)
 	// .pipe(plugins.typescript({
@@ -72,16 +84,6 @@ gulp.task('tsc', function () {
 	// .pipe(gulp.dest('./build/'));
 });
 
-gulp.task('watch', function() {
-  // Start livereload
-  livereload.listen();
-
-  // Add watch rules
-  gulp.watch(defaultAssets.components.views, ['html']).on('change', livereload.changed);
-  gulp.watch(defaultAssets.components.sass, ['sass']).on('change', livereload.changed);
-  gulp.watch(defaultAssets.components.ts, ['tsc']).on('change', livereload.changed);
-});
-
 // Lint CSS and JavaScript files.
 gulp.task('lint', function(done) {
 	runSequence('sass', 'html', 'tsc', done);
@@ -89,5 +91,5 @@ gulp.task('lint', function(done) {
 
 // Run the project in development mode
 gulp.task('default', function(done) {
-	runSequence('env:dev', 'lint', ['watch'], done);
+	runSequence('env:dev', 'lint', ['browser-sync'], done);
 });
