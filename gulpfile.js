@@ -56,7 +56,11 @@ gulp.task('tsc', function () {
   var tsResult = tsProject.src() // instead of gulp.src(...)
   .pipe(ts(tsProject));
 
-  return tsResult.js.pipe(gulp.dest('app'));
+  return tsResult.js
+  .pipe(rename(function (path) {
+    path.dirname = path.dirname.replace('components', '');
+  }))
+  .pipe(gulp.dest('app'));
 });
 
 // Lint CSS and JavaScript files.
