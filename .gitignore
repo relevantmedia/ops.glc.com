@@ -7,7 +7,5 @@
 /typings/*
 
 # Ignore distribution files
-/dist/assets
-/dist/assets/*
-/dist/views
-/dist/views/*
+/app
+/app/*

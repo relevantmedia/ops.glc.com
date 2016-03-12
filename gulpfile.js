@@ -1,5 +1,4 @@
 var gulp = require('gulp');
-// var htmlmin = require('gulp-htmlmin');
 var sass = require('gulp-sass');
 var ts = require('gulp-typescript');
 var runSequence = require('run-sequence');
@@ -9,15 +8,15 @@ var browserSync = require('browser-sync').create();
 var defaultAssets = {
   components:{
     sass:[
-      './app/styles/*.scss',
-      './app/**/styles/*.scss'
+      './components/styles/*.scss',
+      './components/**/styles/*.scss'
     ],
     views:[
-      './app/**/views/*.html'
+      './components/**/views/*.html'
     ],
     ts:[
-      './app/*.ts',
-      './app/**/*.ts'
+      './components/*.ts',
+      './components/**/*.ts'
     ]
   }
 };
@@ -26,10 +25,10 @@ var defaultAssets = {
 gulp.task('browser-sync', function() {
     browserSync.init({
         server: {
-            baseDir: "./dist"
+            baseDir: "./"
         }
     });
-    gulp.watch('./dist/index.html').on('change', browserSync.reload);
+    gulp.watch('./index.html').on('change', browserSync.reload);
     gulp.watch(defaultAssets.components.sass, ['sass']);
     gulp.watch(defaultAssets.components.views).on('change', browserSync.reload);
     gulp.watch(defaultAssets.components.ts, ['tsc']).on('change', browserSync.reload);
@@ -43,25 +42,12 @@ gulp.task('env:dev', function () {
 gulp.task('sass', function () {
   gulp.src(defaultAssets.components.sass)
     .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
-    .pipe(rename(function (path) {
-      path.dirname = path.dirname.replace('styles', '');
-    }))
-    .pipe(gulp.dest('./dist/assets/styles'));
+    .pipe(gulp.dest('./app'));
 });
 
 gulp.task('html', function() {
   return gulp.src(defaultAssets.components.views)
-  .pipe(rename(function (path) {
-    path.dirname = path.dirname.replace('/views', '');
-  }))
-
-    // .pipe(htmlmin({
-    //   collapseWhitespace: true,
-    //   customAttrAssign:[
-    //     [ /\{\{*\s+\w+\}\}/, /\{\{\/if\}\}/ ]
-    //   ]
-    // }))
-    .pipe(gulp.dest('./dist/views'))
+    .pipe(gulp.dest('./app'))
 });
 
 // Typescript task
@@ -70,24 +56,7 @@ gulp.task('tsc', function () {
   var tsResult = tsProject.src() // instead of gulp.src(...)
   .pipe(ts(tsProject));
 
-  return tsResult.js
-  .pipe(rename(function (path) {
-    path.dirname = path.dirname.replace('/components', '');
-  }))
-  .pipe(gulp.dest('./dist/assets/js'));
-
-	// gulp.src(defaultAssets.client.ts)
-	// .pipe(plugins.typescript({
-	// 	typescript: require('typescript'),
-	// 	target: 'ES5',
-	// 	module: 'commonjs',
-	// 	declarationFiles: false,
-	// 	noExternalResolve: true
-	// }))
-	// .pipe(plugins.rename(function (path) {
-	// 	path.dirname = '';
-	// }))
-	// .pipe(gulp.dest('./build/'));
+  return tsResult.js.pipe(gulp.dest('app'));
 });
 
 // Lint CSS and JavaScript files.

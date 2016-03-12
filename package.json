@@ -1,7 +1,7 @@
 {
-  "name": "ops.glc.com",
+  "name": "angularBase",
   "version": "1.0.0",
-  "description": "angular ops website",
+  "description": "angular base",
   "main": "index.js",
   "scripts": {
     "typings": "typings",
@@ -9,6 +9,10 @@
   },
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/relevantmedia/angular-init.git"
+  },
   "dependencies": {
     "angular2": "2.0.0-beta.9",
     "systemjs": "0.19.24",
