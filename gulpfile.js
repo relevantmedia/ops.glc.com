@@ -4,6 +4,7 @@ var ts = require('gulp-typescript');
 var runSequence = require('run-sequence');
 var rename = require('gulp-rename');
 var browserSync = require('browser-sync').create();
+var harp = require('harp');
 
 var defaultAssets = {
   components:{
@@ -20,6 +21,28 @@ var defaultAssets = {
     ]
   }
 };
+
+/**
+ * Serve the Harp Site from the src directory
+ */
+gulp.task('serve', function () {
+  harp.server(__dirname, {
+    port: 9000
+  }, function () {
+    browserSync.init({
+      proxy: "localhost:9000",
+      // open: false,
+      /* Hide the notification. It gets annoying */
+      // notify: {
+      //   styles: ['opacity: 0', 'position: absolute']
+      // }
+    });
+    gulp.watch(['./index.jade','./_layout.jade']).on('change', browserSync.reload);
+    gulp.watch(defaultAssets.components.sass, ['sass']);
+    gulp.watch(defaultAssets.components.views).on('change', browserSync.reload);
+    gulp.watch(defaultAssets.components.ts, ['tsc']).on('change', browserSync.reload);
+  })
+});
 
 // Static server
 gulp.task('browser-sync', function() {
@@ -70,5 +93,5 @@ gulp.task('lint', function(done) {
 
 // Run the project in development mode
 gulp.task('default', function(done) {
-	runSequence('env:dev', 'lint', ['browser-sync'], done);
+	runSequence('env:dev', 'lint', ['serve'], done);
 });
