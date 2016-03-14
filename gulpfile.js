@@ -13,7 +13,7 @@ var defaultAssets = {
       './components/**/styles/*.scss'
     ],
     views:[
-      './components/**/views/*.html'
+      './components/**/views/*.jade'
     ],
     ts:[
       './components/*.ts',
@@ -39,7 +39,7 @@ gulp.task('serve', function () {
     });
     gulp.watch(['./index.jade','./_layout.jade']).on('change', browserSync.reload);
     gulp.watch(defaultAssets.components.sass, ['sass']);
-    gulp.watch(defaultAssets.components.views).on('change', browserSync.reload);
+    gulp.watch(defaultAssets.components.views, ['html']).on('change', browserSync.reload);
     gulp.watch(defaultAssets.components.ts, ['tsc']).on('change', browserSync.reload);
   })
 });
